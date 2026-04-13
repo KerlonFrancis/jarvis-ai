@@ -50,11 +50,19 @@ function speak(text) {
 
 function startListening() {
 
-recognition.start();
+    // Desbloqueia áudio no iPhone
+    const unlockSpeech =
+        new SpeechSynthesisUtterance("Jarvis pronto");
 
-statusText.innerText =
-"Jarvis ouvindo...";
+    unlockSpeech.volume = 0;
 
+    speechSynthesis.speak(unlockSpeech);
+
+    // Inicia reconhecimento
+    recognition.start();
+
+    statusText.innerText =
+        "Jarvis ouvindo...";
 }
 
 recognition.onresult =
