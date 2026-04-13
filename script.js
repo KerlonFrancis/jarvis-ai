@@ -15,15 +15,23 @@ recognition.lang = "pt-BR";
 
 recognition.continuous = true;
 
-function speak(text) {
+function falar(texto) {
+    const fala = new SpeechSynthesisUtterance(texto);
 
-const speech =
-new SpeechSynthesisUtterance(text);
+    fala.lang = "pt-BR";
 
-speech.lang = "pt-BR";
+    const vozes = speechSynthesis.getVoices();
 
-speechSynthesis.speak(speech);
+    for (let i = 0; i < vozes.length; i++) {
+        if (vozes[i].lang === "pt-BR") {
+            fala.voice = vozes[i];
+            break;
+        }
+    }
 
+    fala.rate = 0.9;
+
+    speechSynthesis.speak(fala);
 }
 
 function startListening() {
