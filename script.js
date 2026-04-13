@@ -1,203 +1,81 @@
 const statusText =
 document.getElementById("status");
 
-const responseBox =
-document.getElementById("responseBox");
+const responseText =
+document.getElementById("response");
 
-const API_KEY =
-"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";
+const button =
+document.getElementById("start-btn");
 
+// Criar reconhecimento
 const recognition =
-new(window.SpeechRecognition ||
+new (window.SpeechRecognition ||
 window.webkitSpeechRecognition)();
 
 recognition.lang = "pt-BR";
 
-recognition.continuous = true;
-
+// Função para falar
 function speak(text) {
 
-    // Força carregar vozes
-    let voices = speechSynthesis.getVoices();
-
-    if (voices.length === 0) {
-        speechSynthesis.onvoiceschanged = () => {
-            speak(text);
-        };
-        return;
-    }
-
     const utterance =
-        new SpeechSynthesisUtterance(text);
+    new SpeechSynthesisUtterance(text);
 
     utterance.lang = "pt-BR";
 
-    // Tenta escolher voz masculina PT-BR
-    const voice =
-        voices.find(v =>
-            v.lang === "pt-BR"
-        );
+    const voices =
+    speechSynthesis.getVoices();
 
-    if (voice) {
-        utterance.voice = voice;
+    const ptVoice =
+    voices.find(v =>
+        v.lang === "pt-BR"
+    );
+
+    if (ptVoice) {
+        utterance.voice = ptVoice;
     }
-
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
 
     speechSynthesis.speak(utterance);
 }
 
-function startListening() {
+// Quando clicar no botão
+button.onclick = () => {
 
-    // Desbloqueia áudio no iPhone
-    const unlockSpeech =
-        new SpeechSynthesisUtterance("Jarvis pronto");
+    try {
 
-    unlockSpeech.volume = 0;
+        statusText.innerText =
+        "Ouvindo...";
 
-    speechSynthesis.speak(unlockSpeech);
+        // Primeiro fala
+        speak("Sim, chefe?");
 
-    // Inicia reconhecimento
-    recognition.start();
+        // Espera um pouco
+        setTimeout(() => {
 
-    statusText.innerText =
-        "Jarvis ouvindo...";
-}
+            recognition.start();
 
-recognition.onresult =
-async function(event) {
+        }, 1500);
 
-const transcript =
-event.results[event.results.length - 1][0]
-.transcript
-.toLowerCase();
+    }
 
-if (transcript.includes("jarvis")) {
+    catch (e) {
 
-statusText.innerText =
-"Sim, chefe?";
+        statusText.innerText =
+        "Erro ao iniciar.";
 
-speak("Sim, chefe?");
-
-return;
-
-}
-
-if (transcript.includes("youtube")) {
-
-window.open(
-"https://youtube.com"
-);
-
-speak(
-"Abrindo YouTube"
-);
-
-return;
-
-}
-
-if (transcript.includes("google")) {
-
-window.open(
-"https://google.com"
-);
-
-speak(
-"Abrindo Google"
-);
-
-return;
-
-}
-
-await askJarvis(transcript);
+    }
 
 };
 
-async function askJarvis(question) {
+// Quando ouvir comando
+recognition.onresult = async (event) => {
 
-statusText.innerText =
-"Pensando...";
+    const command =
+    event.results[0][0].transcript;
 
-try {
+    responseText.innerText =
+    "Você disse: " + command;
 
-const response =
-await fetch(
-"https://api.openai.com/v1/chat/completions",
-{
+    // Resposta simples
+    speak("Executando comando");
 
-method: "POST",
-
-headers: {
-
-"Content-Type":
-"application/json",
-
-"Authorization":
-"Bearer " + API_KEY
-
-},
-
-body: JSON.stringify({
-
-model: "gpt-4o-mini",
-
-messages: [
-
-{
-
-role: "system",
-
-content:
-"Você é Jarvis, um assistente futurista que responde de forma educada e objetiva."
-
-},
-
-{
-
-role: "user",
-
-content: question
-
-}
-
-]
-
-})
-
-}
-
-);
-
-const data =
-await response.json();
-
-const reply =
-data.choices[0]
-.message
-.content;
-
-responseBox.innerText =
-reply;
-
-speak(reply);
-
-statusText.innerText =
-"Pronto.";
-
-}
-
-catch (error) {
-
-speak(
-"Erro ao conectar com a inteligência"
-);
-
-statusText.innerText =
-"Erro.";
-
-}
-
-}
+};
