@@ -15,23 +15,37 @@ recognition.lang = "pt-BR";
 
 recognition.continuous = true;
 
-function falar(texto) {
-    const fala = new SpeechSynthesisUtterance(texto);
+function speak(text) {
 
-    fala.lang = "pt-BR";
+    // Força carregar vozes
+    let voices = speechSynthesis.getVoices();
 
-    const vozes = speechSynthesis.getVoices();
-
-    for (let i = 0; i < vozes.length; i++) {
-        if (vozes[i].lang === "pt-BR") {
-            fala.voice = vozes[i];
-            break;
-        }
+    if (voices.length === 0) {
+        speechSynthesis.onvoiceschanged = () => {
+            speak(text);
+        };
+        return;
     }
 
-    fala.rate = 0.9;
+    const utterance =
+        new SpeechSynthesisUtterance(text);
 
-    speechSynthesis.speak(fala);
+    utterance.lang = "pt-BR";
+
+    // Tenta escolher voz masculina PT-BR
+    const voice =
+        voices.find(v =>
+            v.lang === "pt-BR"
+        );
+
+    if (voice) {
+        utterance.voice = voice;
+    }
+
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+
+    speechSynthesis.speak(utterance);
 }
 
 function startListening() {
