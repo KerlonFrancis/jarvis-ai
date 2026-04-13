@@ -1,0 +1,9 @@
+{
+"name": "JARVIS AI",
+"short_name": "JARVIS",
+"start_url": "index.html",
+"display": "standalone",
+"background_color": "#000000",
+"theme_color": "#bb00ff",
+"icons": []
+}
